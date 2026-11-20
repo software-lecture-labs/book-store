@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="book.title">Kitap</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/book.js"></script>
+</head>
+<body>
+<header id="site-header" class="site-header"></header>
+<main>
+  <div id="messages"></div>
+  <p><a href="index.html" data-i18n="book.back"></a></p>
+
+  <div class="book-detail">
+    <article id="book" class="panel" aria-live="polite"></article>
+    <aside class="panel">
+      <h2 data-i18n="reviews.ratings"></h2>
+      <ul id="ratings" class="ratings"></ul>
+    </aside>
+  </div>
+
+  <section>
+    <h2 data-i18n="reviews.heading"></h2>
+    <div id="my-review"></div>
+    <ul id="reviews" class="reviews"></ul>
+    <nav id="review-pager" class="pager"></nav>
+  </section>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>

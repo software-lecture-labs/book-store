@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="admin.customersTitle">Kullanıcılar</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/admin-customers.js"></script>
+</head>
+<body>
+<header id="site-header" class="site-header"></header>
+<main>
+  <nav id="admin-nav" class="tabs" data-i18n-title="admin.heading"></nav>
+  <div id="messages"></div>
+  <h1 data-i18n="admin.tabCustomers"></h1>
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th data-i18n="admin.customerName"></th>
+        <th data-i18n="field.email"></th>
+        <th data-i18n="admin.role"></th>
+        <th data-i18n="admin.registered"></th>
+        <th data-i18n="admin.canSignIn"></th>
+      </tr>
+      </thead>
+      <tbody id="customers"></tbody>
+    </table>
+  </div>
+  <nav id="pager" class="pager"></nav>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>

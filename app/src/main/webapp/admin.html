@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="admin.title">Yönetim</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/admin-overview.js"></script>
+</head>
+<body>
+<header id="site-header" class="site-header"></header>
+<main>
+  <nav id="admin-nav" class="tabs" data-i18n-title="admin.heading"></nav>
+  <div id="messages"></div>
+  <h1 data-i18n="admin.overview"></h1>
+  <div id="figures" class="figures" aria-live="polite"></div>
+  <div class="two-columns">
+    <section class="panel">
+      <h2 data-i18n="admin.lowStock"></h2>
+      <div id="low-stock"></div>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="admin.waitingOrders"></h2>
+      <div id="waiting-orders"></div>
+    </section>
+  </div>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>

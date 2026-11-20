@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="login.title">Giriş</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/login.js"></script>
+</head>
+<body>
+<header id="site-header" class="site-header"></header>
+<main>
+  <div class="narrow">
+    <div id="messages"></div>
+    <form id="login" class="panel">
+      <h1 data-i18n="login.heading"></h1>
+      <div class="field"><label for="email" data-i18n="field.email"></label>
+        <input id="email" name="email" type="email" required autocomplete="username"></div>
+      <div class="field"><label for="password" data-i18n="field.password"></label>
+        <input id="password" name="password" type="password" required autocomplete="current-password"></div>
+      <div class="actions"><button type="submit" data-i18n="login.submit"></button></div>
+      <p class="hint"><span data-i18n="login.noAccount"></span> <a href="register.html" data-i18n="nav.register"></a></p>
+    </form>
+  </div>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>
