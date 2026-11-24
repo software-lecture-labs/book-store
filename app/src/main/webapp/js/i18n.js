@@ -105,6 +105,17 @@ export function formatDateTime(instant) {
 }
 
 /**
+ * Formats an ISO calendar date without changing its UTC day.
+ *
+ * @param {string} date an ISO date such as "2026-06-22"
+ * @returns {string} a localized calendar date
+ */
+export function formatDate(date) {
+  return new Intl.DateTimeFormat(locale(), { dateStyle: 'medium', timeZone: 'UTC' })
+    .format(new Date(`${date}T00:00:00Z`));
+}
+
+/**
  * Returns the message for a failed call: the text for its problem code if there is one, else the
  * server's own detail.
  *

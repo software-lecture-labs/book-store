@@ -136,6 +136,12 @@ Bir kitaba yorum yazabilmek için o kitabı satın almış ve siparişin **Tesli
 - Satıştaki kitap sayısı, stoğu 5'in altına düşen kitaplar ve kargolanmayı bekleyen *(Ödendi durumundaki)* siparişler.
 - Stoğu azalan bir kitaba tıklayınca düzenleme sayfası açılır.
 
+### Satış raporu
+
+- Son 30 UTC takvim gününün günlük geliri, sipariş sayısı ve satılan kitap adedi gösterilir; satış olmayan günler grafikte sıfır olarak yer alır.
+- Yalnızca **Ödendi**, **Kargoda** ve **Teslim edildi** durumundaki siparişler hesaba katılır. Oluşturulmuş ve iptal edilmiş siparişler dahil değildir.
+- Toplam gelir kargo ücretini içerir. En çok/en az satan listeleri dönem içinde satışı olan kitapları adetlerine göre sıralar; kitap gelirinde kargo paylaştırılmaz.
+
 ### Kitaplar
 
 - Satıştan kaldırılmış olanlar dahil bütün kitaplar. Satışta olmayanlar soluk görünür.

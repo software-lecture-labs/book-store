@@ -4,18 +4,27 @@ import com.bookstore.catalog.api.StockFacade;
 import com.bookstore.sales.api.OrderAdminFacade;
 import com.bookstore.sales.api.OrderDetails;
 import com.bookstore.sales.api.OrderSummary;
+import com.bookstore.sales.api.SalesReport;
 import com.bookstore.sales.domain.Order;
 import com.bookstore.sales.domain.OrderEventOutbox;
 import com.bookstore.sales.domain.OrderNumber;
 import com.bookstore.sales.domain.OrderRepository;
 import com.bookstore.sales.domain.OrderStatus;
+import com.bookstore.sales.domain.SalesReportData;
 import com.bookstore.shared.kernel.error.ConflictException;
 import com.bookstore.shared.kernel.error.NotFoundException;
+import com.bookstore.shared.kernel.money.Money;
 import com.bookstore.shared.kernel.paging.Page;
 import com.bookstore.shared.kernel.paging.PageRequest;
 import com.bookstore.shared.kernel.transaction.TransactionRunner;
 
 import java.time.Clock;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,6 +35,8 @@ import jakarta.inject.Inject;
  */
 @ApplicationScoped
 public class OrderAdminService implements OrderAdminFacade {
+
+    private static final int REPORT_DAYS = 30;
 
     private final OrderRepository orders;
     private final StockFacade stock;
@@ -123,9 +134,39 @@ public class OrderAdminService implements OrderAdminFacade {
         return SalesMapper.detailsOf(order);
     }
 
+    @Override
+    public SalesReport salesReport() {
+        LocalDate to = LocalDate.now(clock.withZone(ZoneOffset.UTC));
+        LocalDate from = to.minusDays(REPORT_DAYS - 1);
+        SalesReportData data = orders.salesReport(from.atStartOfDay(ZoneOffset.UTC).toInstant(),
+                to.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant());
+
+        Map<LocalDate, SalesReportData.DailySales> byDate = new HashMap<>();
+        data.daily().forEach(day -> byDate.put(day.date(), day));
+        List<SalesReport.DailySales> daily = new ArrayList<>(REPORT_DAYS);
+        for (int offset = 0; offset < REPORT_DAYS; offset++) {
+            LocalDate date = from.plusDays(offset);
+            SalesReportData.DailySales totals = byDate.get(date);
+            daily.add(totals == null
+                    ? new SalesReport.DailySales(date, Money.ZERO, 0, 0)
+                    : new SalesReport.DailySales(date, totals.revenue(), totals.orderCount(), totals.unitsSold()));
+        }
+
+        Money revenue = Money.sum(daily.stream().map(SalesReport.DailySales::revenue));
+        long orderCount = daily.stream().mapToLong(SalesReport.DailySales::orderCount).sum();
+        long unitsSold = daily.stream().mapToLong(SalesReport.DailySales::unitsSold).sum();
+        return new SalesReport(from, to, revenue, orderCount, unitsSold, daily,
+                data.bestSelling().stream().map(OrderAdminService::bookSalesOf).toList(),
+                data.leastSelling().stream().map(OrderAdminService::bookSalesOf).toList());
+    }
+
     private void cancel(Order order) {
         order.cancel(clock);
         stock.release(order.quantitiesByBook());
+    }
+
+    private static SalesReport.BookSales bookSalesOf(SalesReportData.BookSales sales) {
+        return new SalesReport.BookSales(sales.bookId().value(), sales.title(), sales.unitsSold(), sales.revenue());
     }
 
     private Order requireOrder(OrderNumber number) {

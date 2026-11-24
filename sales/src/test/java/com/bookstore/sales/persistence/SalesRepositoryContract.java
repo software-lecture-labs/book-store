@@ -18,6 +18,7 @@ import com.bookstore.sales.domain.OrderStatus;
 import com.bookstore.sales.domain.OrderStatusChanged;
 import com.bookstore.sales.domain.PaymentMethod;
 import com.bookstore.sales.domain.ProductSnapshot;
+import com.bookstore.sales.domain.SalesReportData;
 import com.bookstore.sales.domain.ShippingPolicy;
 import com.bookstore.shared.jdbc.JdbcExecutor;
 import com.bookstore.shared.kernel.error.ConflictException;
@@ -182,6 +183,49 @@ abstract class SalesRepositoryContract {
             assertThat(db.orders.hasDeliveredBook(ayse.id(), dune.bookId())).isTrue();
             assertThat(db.orders.hasDeliveredBook(ayse.id(), madonna.bookId())).isFalse();
             assertThat(db.orders.hasDeliveredBook(mehmet.id(), dune.bookId())).isFalse();
+        }
+
+        @Test
+        void salesReportCountsOnlySettledOrdersInTheRequestedRange() {
+            Order paid = place(ayse, TestClock.CLOCK, Map.of(dune, 2));
+            paid.markPaid(TestClock.CLOCK);
+            db.orders.save(paid);
+
+            Order delivered = place(mehmet, Clock.offset(TestClock.CLOCK, Duration.ofHours(1)),
+                    Map.of(madonna, 1));
+            delivered.markPaid(TestClock.CLOCK);
+            delivered.ship(TestClock.CLOCK);
+            delivered.deliver(TestClock.CLOCK);
+            db.orders.save(delivered);
+
+            Order cancelled = place(ayse, TestClock.CLOCK, Map.of(dune, 7));
+            cancelled.cancel(TestClock.CLOCK);
+            db.orders.save(cancelled);
+            place(mehmet, TestClock.CLOCK, Map.of(madonna, 2));
+            Order outsideRange = place(ayse, Clock.offset(TestClock.CLOCK, Duration.ofDays(-2)),
+                    Map.of(dune, 4));
+            outsideRange.markPaid(TestClock.CLOCK);
+            db.orders.save(outsideRange);
+
+            Clock previousUtcDay = Clock.fixed(Instant.parse("2026-11-13T23:30:00Z"), java.time.ZoneOffset.UTC);
+            Order previousDay = place(ayse, previousUtcDay, Map.of(dune, 1));
+            previousDay.markPaid(previousUtcDay);
+            db.orders.save(previousDay);
+
+            SalesReportData report = db.orders.salesReport(Instant.parse("2026-11-13T00:00:00Z"),
+                    Instant.parse("2026-11-15T00:00:00Z"));
+
+            assertThat(report.daily()).containsExactly(
+                    new SalesReportData.DailySales(java.time.LocalDate.parse("2026-11-13"),
+                            previousDay.total(), 1, 1),
+                    new SalesReportData.DailySales(java.time.LocalDate.parse("2026-11-14"),
+                            paid.total().plus(delivered.total()), 2, 3));
+            assertThat(report.bestSelling()).extracting(SalesReportData.BookSales::bookId)
+                    .containsExactly(dune.bookId(), madonna.bookId());
+            assertThat(report.bestSelling()).extracting(SalesReportData.BookSales::unitsSold)
+                    .containsExactly(3L, 1L);
+            assertThat(report.leastSelling()).extracting(SalesReportData.BookSales::bookId)
+                    .containsExactly(madonna.bookId(), dune.bookId());
         }
 
         private Order place(Customer customer, Clock clock, Map<ProductSnapshot, Integer> lines) {

@@ -211,6 +211,11 @@ address { font-style: normal; }
 .figure { display: grid; gap: .2rem; }
 .figure-label { color: var(--muted); font-size: .9rem; }
 .figure-value { font-size: 2rem; line-height: 1.1; }
+.sales-chart { list-style: none; display: flex; gap: .3rem; overflow-x: auto; margin: .75rem 0 0; padding: 0; }
+.sales-chart-day { flex: 1 0 1.65rem; min-width: 1.65rem; display: grid; grid-template-rows: 10rem auto; gap: .4rem; text-align: center; }
+.sales-chart-track { display: flex; align-items: flex-end; background: var(--paper); border-radius: 4px; }
+.sales-chart-bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; }
+.sales-chart-day time { color: var(--muted); font-size: .72rem; }
 .plain-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; }
 .editable li { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .35rem 0; border-bottom: 1px solid var(--line); }
 .editable li .actions { margin: 0; }

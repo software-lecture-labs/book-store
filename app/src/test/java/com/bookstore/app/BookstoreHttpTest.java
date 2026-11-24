@@ -15,6 +15,7 @@ import com.bookstore.review.rest.AdminReviewResource;
 import com.bookstore.review.rest.RatingResource;
 import com.bookstore.review.rest.ReviewResource;
 import com.bookstore.sales.api.GuestCart;
+import com.bookstore.sales.rest.AdminSalesResource;
 import com.bookstore.sales.rest.CartResource;
 import com.bookstore.sales.rest.OrderAdminResource;
 import com.bookstore.sales.rest.OrderResource;
@@ -56,7 +57,8 @@ class BookstoreHttpTest {
                 new CatalogResource(bookstore.catalog()), new CategoryResource(bookstore.catalog()),
                 new RegistrationResource(bookstore.accounts()), new AccountResource(bookstore.accounts()),
                 new CartResource(bookstore.cart(), () -> visitorCart), new OrderResource(bookstore.checkout(), bookstore.orders()),
-                new OrderAdminResource(bookstore.orderAdmin()), new ReviewResource(bookstore.reviews()),
+                new OrderAdminResource(bookstore.orderAdmin()), new AdminSalesResource(bookstore.orderAdmin()),
+                new ReviewResource(bookstore.reviews()),
                 new RatingResource(bookstore.reviews()), new AdminBookResource(bookstore.catalogAdmin()),
                 new AdminAuthorResource(bookstore.catalogAdmin()), new AdminCategoryResource(bookstore.catalogAdmin()),
                 new AdminCustomerResource(bookstore.customerAdmin()), new AdminReviewResource(bookstore.reviewAdmin()));
@@ -107,6 +109,10 @@ class BookstoreHttpTest {
         assertThat(admin.put(status, "{\"status\": \"DELIVERED\"}").json().get("status").asText())
                 .isEqualTo("DELIVERED");
         assertThat(deniz.get("/api/v1/orders/" + number).json().get("status").asText()).isEqualTo("DELIVERED");
+        JsonNode sales = admin.get("/api/v1/admin/sales").json();
+        assertThat(sales.get("orderCount").asLong()).isEqualTo(1);
+        assertThat(sales.get("unitsSold").asLong()).isEqualTo(2);
+        assertThat(sales.get("revenue").get("amount").decimalValue()).isEqualByComparingTo("700.00");
 
         // Now the review is welcome and shows up in the book's rating.
         assertThat(deniz.post("/api/v1/books/" + dune + "/reviews", "{\"stars\": 5, \"comment\": \"Harika\"}")
