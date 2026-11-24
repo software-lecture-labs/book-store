@@ -3,6 +3,7 @@ package com.bookstore.catalog.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.bookstore.catalog.api.AuthorSummary;
 import com.bookstore.catalog.api.BookDetails;
 import com.bookstore.catalog.api.BookSearchQuery;
 import com.bookstore.catalog.api.BookSummary;
@@ -133,6 +134,12 @@ class CatalogServiceTest {
 
         assertThat(tree).extracting(CategoryNode::name).containsExactly("Literature", "Science");
         assertThat(tree.getFirst().children()).extracting(CategoryNode::name).containsExactly("Novel", "Poetry");
+    }
+
+    @Test
+    void authorsAreSortedForCatalogSearch() {
+        assertThat(shop.catalog.authors()).extracting(AuthorSummary::name)
+                .containsExactly("Carl Sagan", "Nazım Hikmet", "Sabahattin Ali");
     }
 
     private static List<String> titles(Page<BookSummary> page) {

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.bookstore.catalog.rest.AdminAuthorResource;
 import com.bookstore.catalog.rest.AdminBookResource;
 import com.bookstore.catalog.rest.AdminCategoryResource;
+import com.bookstore.catalog.rest.AuthorResource;
 import com.bookstore.catalog.rest.CatalogResource;
 import com.bookstore.catalog.rest.CategoryResource;
 import com.bookstore.customer.rest.AccountAuthenticator;
@@ -53,7 +54,8 @@ class BookstoreHttpTest {
                 TestClock.CLOCK, DemoAdapters.approvingPayments(), hasher, notified::add));
         DemoData.load(database.dataSource(), bookstore.accounts(), hasher, TestClock.CLOCK);
         server = RestTestServer.start(new AccountAuthenticator(bookstore.accounts()),
-                new CatalogResource(bookstore.catalog()), new CategoryResource(bookstore.catalog()),
+                new CatalogResource(bookstore.catalog()), new AuthorResource(bookstore.catalog()),
+                new CategoryResource(bookstore.catalog()),
                 new RegistrationResource(bookstore.accounts()), new AccountResource(bookstore.accounts()),
                 new CartResource(bookstore.cart(), () -> visitorCart), new OrderResource(bookstore.checkout(), bookstore.orders()),
                 new OrderAdminResource(bookstore.orderAdmin()), new ReviewResource(bookstore.reviews()),

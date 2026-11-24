@@ -1,6 +1,7 @@
 package com.bookstore.catalog.application;
 
 import com.bookstore.catalog.api.AdminBookRow;
+import com.bookstore.catalog.api.AuthorSummary;
 import com.bookstore.catalog.api.AuthorView;
 import com.bookstore.catalog.api.BookDetails;
 import com.bookstore.catalog.api.BookSearchQuery;
@@ -47,6 +48,10 @@ final class CatalogMapper {
 
     static AuthorView authorViewOf(Author author) {
         return new AuthorView(author.id().value(), author.name());
+    }
+
+    static AuthorSummary authorSummaryOf(Author author) {
+        return new AuthorSummary(author.id().value(), author.name());
     }
 
     static CategoryNode nodeOf(Category category) {

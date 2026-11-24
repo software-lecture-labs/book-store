@@ -29,7 +29,7 @@ class CatalogAdminResourceTest {
         case "ayse" -> Optional.of(new Caller(CustomerId.of(2), Caller.CUSTOMER));
         default -> Optional.empty();
     }, new AdminBookResource(shop.admin), new AdminAuthorResource(shop.admin), new AdminCategoryResource(shop.admin),
-            new CatalogResource(shop.catalog), new CategoryResource(shop.catalog));
+            new CatalogResource(shop.catalog), new AuthorResource(shop.catalog), new CategoryResource(shop.catalog));
     private final HttpTestClient anonymous = server.client();
     private final HttpTestClient customer = anonymous.as("ayse", "pw");
     private final HttpTestClient admin = anonymous.as("admin", "pw");
@@ -112,6 +112,8 @@ class CatalogAdminResourceTest {
     void authorsAndCategoriesAreManagedAndKeptWhileInUse() {
         long orhan = admin.post("/api/v1/admin/authors", "{\"name\": \"Orhan Pamuk\"}").json().get("id").asLong();
         assertThat(admin.get("/api/v1/admin/authors").json().findValuesAsText("name"))
+                .contains("Orhan Pamuk", "Sabahattin Ali");
+        assertThat(anonymous.get("/api/v1/authors").json().findValuesAsText("name"))
                 .contains("Orhan Pamuk", "Sabahattin Ali");
         assertThat(admin.put("/api/v1/admin/authors/" + orhan, "{\"name\": \"O. Pamuk\"}").json().get("name").asText())
                 .isEqualTo("O. Pamuk");

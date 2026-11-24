@@ -151,6 +151,13 @@ class WebPagesTest {
         }
     }
 
+    @Test
+    void catalogSearchOffersAuthorAndPriceFilters() {
+        String catalog = read(WEBAPP.resolve("index.html"));
+
+        assertThat(catalog).contains("name=\"author\"", "name=\"minPrice\"", "name=\"maxPrice\"");
+    }
+
     /** WCAG 1.4.3 and 1.4.11: text at least 4.5:1 and the rating stars 3:1, in both themes. */
     @Test
     void theColoursOfBothThemesAreReadable() {

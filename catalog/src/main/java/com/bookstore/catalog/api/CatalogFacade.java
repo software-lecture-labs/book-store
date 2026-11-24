@@ -42,6 +42,13 @@ public interface CatalogFacade {
     List<CategoryNode> categoryTree();
 
     /**
+     * Returns the authors available as catalog search filters.
+     *
+     * @return the authors, sorted by name
+     */
+    List<AuthorSummary> authors();
+
+    /**
      * Returns a book's cover image, if one was uploaded (CAT-2).
      *
      * @param bookId the book

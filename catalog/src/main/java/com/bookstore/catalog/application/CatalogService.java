@@ -1,5 +1,6 @@
 package com.bookstore.catalog.application;
 
+import com.bookstore.catalog.api.AuthorSummary;
 import com.bookstore.catalog.api.BookDetails;
 import com.bookstore.catalog.api.BookSearchQuery;
 import com.bookstore.catalog.api.BookSummary;
@@ -7,6 +8,7 @@ import com.bookstore.catalog.api.CatalogFacade;
 import com.bookstore.catalog.api.CategoryNode;
 import com.bookstore.catalog.api.CoverFile;
 import com.bookstore.catalog.domain.AuthorId;
+import com.bookstore.catalog.domain.AuthorRepository;
 import com.bookstore.catalog.domain.Book;
 import com.bookstore.catalog.domain.BookRepository;
 import com.bookstore.catalog.domain.BookSpecifications;
@@ -37,6 +39,7 @@ import jakarta.inject.Inject;
 public class CatalogService implements CatalogFacade {
 
     private final BookRepository books;
+    private final AuthorRepository authors;
     private final CategoryRepository categories;
     private final FileStorage files;
 
@@ -44,19 +47,22 @@ public class CatalogService implements CatalogFacade {
      * Creates the service.
      *
      * @param books      where books are stored
+     * @param authors    where authors are stored
      * @param categories where categories are stored
      * @param files      where cover images are kept
      */
     @Inject
-    public CatalogService(BookRepository books, CategoryRepository categories, FileStorage files) {
+    public CatalogService(BookRepository books, AuthorRepository authors, CategoryRepository categories,
+                          FileStorage files) {
         this.books = books;
+        this.authors = authors;
         this.categories = categories;
         this.files = files;
     }
 
     /** For the CDI container's client proxy only; never called by the application. */
     protected CatalogService() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
     @Override
@@ -95,6 +101,11 @@ public class CatalogService implements CatalogFacade {
     @Override
     public List<CategoryNode> categoryTree() {
         return categories.findRoots().stream().map(CatalogMapper::nodeOf).toList();
+    }
+
+    @Override
+    public List<AuthorSummary> authors() {
+        return authors.findAll().stream().map(CatalogMapper::authorSummaryOf).toList();
     }
 
     /** Covers of books off sale are served too: the administrator's pages show them. */
