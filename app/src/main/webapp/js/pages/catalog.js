@@ -4,12 +4,14 @@
 import { api, query } from '../api.js';
 import { $, fill, h } from '../dom.js';
 import { formatMoney, t } from '../i18n.js';
+import { favoriteButton, loadFavoriteIds } from '../favorites.js';
 import { busy, refreshCartBadge, showError, showMessage, startPage } from '../layout.js';
 
 const PAGE_SIZE = 12;
 const form = $('#search');
 
-await startPage();
+const caller = await startPage();
+const favoriteIds = caller?.role === 'CUSTOMER' ? await loadFavoriteIds() : new Set();
 await loadCategories();
 readSearchFromAddress();
 await search();
@@ -104,5 +106,8 @@ function bookCard(book) {
       ? h('p', { class: 'hint' }, h('span', { class: 'stars' }, '★'), ` ${Number(book.averageRating).toFixed(1)} (${book.ratingCount})`)
       : null,
     h('p', { class: book.inStock ? 'stock' : 'stock out' }, t(book.inStock ? 'book.inStock' : 'book.outOfStock')),
+    caller?.role === 'CUSTOMER'
+      ? h('div', { class: 'actions' }, favoriteButton(book.id, book.title, favoriteIds))
+      : null,
     h('div', { class: 'bottom' }, h('span', { class: 'price' }, formatMoney(book.price)), addButton)));
 }

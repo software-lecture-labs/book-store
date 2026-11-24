@@ -7,6 +7,7 @@
   "nav.catalog": "Kitaplar",
   "nav.cart": "Sepet",
   "nav.orders": "Siparişlerim",
+  "nav.favorites": "Favorilerim",
   "nav.account": "Hesabım",
   "nav.signIn": "Giriş yap",
   "nav.signOut": "Çıkış yap",
@@ -134,6 +135,15 @@
   "orders.order": "Sipariş {number}",
   "orders.back": "← Siparişlerime dön",
   "orders.placed": "Siparişiniz alındı. Sipariş numaranız: {number}",
+
+  "favorites.title": "Favorilerim · Kitap Mağazası",
+  "favorites.heading": "Favori kitaplarım",
+  "favorites.none": "Henüz favori kitabınız yok.",
+  "favorites.add": "Favorilere ekle",
+  "favorites.remove": "Favorilerden çıkar",
+  "favorites.addedMessage": "“{title}” favorilerinize eklendi.",
+  "favorites.removedMessage": "“{title}” favorilerinizden çıkarıldı.",
+  "favorites.unavailable": "Bu kitap artık satışta değil.",
 
   "account.title": "Hesabım · Kitap Mağazası",
   "account.heading": "Hesabım",
@@ -315,5 +325,6 @@
   "problem.category.has-children": "Bu kategorinin alt kategorileri var; önce onları silin.",
   "problem.category.name-taken": "Aynı yerde bu adla bir kategori var.",
   "problem.customer.admin-protected": "Yönetici hesapları buradan kapatılamaz.",
+  "problem.favorite.exists": "Bu kitap zaten favorilerinizde.",
   "problem.request.unreadable": "Dosya okunamadı."
 }

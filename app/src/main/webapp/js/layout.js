@@ -56,7 +56,11 @@ function drawHeader() {
     nav.append(link('admin.html', 'nav.admin'));
   }
   if (caller) {
-    nav.append(link('orders.html', 'nav.orders'), link('account.html', 'nav.account'),
+    nav.append(link('orders.html', 'nav.orders'));
+    if (caller.role === 'CUSTOMER') {
+      nav.append(link('favorites.html', 'nav.favorites'));
+    }
+    nav.append(link('account.html', 'nav.account'),
       h('button', { type: 'button', class: 'link-button', onclick: signOut }, t('nav.signOut')));
   } else {
     nav.append(link('login.html', 'nav.signIn'), link('register.html', 'nav.register'));
