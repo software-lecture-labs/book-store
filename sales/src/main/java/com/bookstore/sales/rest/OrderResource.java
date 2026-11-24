@@ -42,6 +42,7 @@ import jakarta.ws.rs.core.SecurityContext;
  *   <tr><td>{@code POST /api/v1/orders}</td><td>order everything in the cart</td></tr>
  *   <tr><td>{@code GET /api/v1/orders}</td><td>the customer's orders, newest first</td></tr>
  *   <tr><td>{@code GET /api/v1/orders/{number}}</td><td>one of them</td></tr>
+ *   <tr><td>{@code POST /api/v1/orders/{number}/cancel}</td><td>cancel one of the customer's orders</td></tr>
  * </table>
  *
  * <p>If the cart had to be corrected at checkout, the answer is a 409 problem with the code
@@ -116,6 +117,13 @@ public class OrderResource {
     @Path("{number}")
     public OrderDetails one(@Context SecurityContext security, @PathParam("number") String number) {
         return orders.myOrder(me(security), number);
+    }
+
+    /** Cancels a customer's cancellable order and returns its stock. */
+    @POST
+    @Path("{number}/cancel")
+    public OrderDetails cancel(@Context SecurityContext security, @PathParam("number") String number) {
+        return orders.cancel(me(security), number);
     }
 
     private static CustomerId me(SecurityContext security) {

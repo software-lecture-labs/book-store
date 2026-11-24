@@ -134,6 +134,9 @@
   "orders.order": "Order {number}",
   "orders.back": "← Back to my orders",
   "orders.placed": "Thank you, your order {number} has been placed.",
+  "orders.cancel": "Cancel order",
+  "orders.confirmCancel": "Cancel order {number}?",
+  "orders.cancelled": "Your order has been cancelled.",
 
   "account.title": "My account · Book Store",
   "account.heading": "My account",

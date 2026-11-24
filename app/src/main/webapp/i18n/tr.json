@@ -134,6 +134,9 @@
   "orders.order": "Sipariş {number}",
   "orders.back": "← Siparişlerime dön",
   "orders.placed": "Siparişiniz alındı. Sipariş numaranız: {number}",
+  "orders.cancel": "Siparişi iptal et",
+  "orders.confirmCancel": "{number} numaralı sipariş iptal edilsin mi?",
+  "orders.cancelled": "Siparişiniz iptal edildi.",
 
   "account.title": "Hesabım · Kitap Mağazası",
   "account.heading": "Hesabım",

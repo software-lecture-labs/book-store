@@ -125,7 +125,7 @@ public final class BookstoreModule {
         this.checkout = new CheckoutService(directory, cartRepository, stock, orderRepository,
                 new JdbcOrderNumberSequence(jdbc, transactions), new JdbcOrderRequestLog(jdbc), adapters.paymentGateway(),
                 shipping, transactions, outbox, relay, adapters.clock());
-        this.orders = new OrderService(orderRepository);
+        this.orders = new OrderService(orderRepository, stock, transactions, outbox, relay, adapters.clock());
         this.orderAdmin = new OrderAdminService(orderRepository, stock, transactions, outbox, relay, adapters.clock());
         PurchaseHistoryService purchases = new PurchaseHistoryService(orderRepository);
 
