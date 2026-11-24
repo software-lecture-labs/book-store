@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="admin.booksTitle">Kitap yönetimi</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/admin-books.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="site.skip">İçeriğe geç</a>
+<header id="site-header" class="site-header"></header>
+<main id="main" tabindex="-1">
+  <nav id="admin-nav" class="tabs" data-i18n-label="admin.heading"></nav>
+  <div id="messages"></div>
+  <div class="heading-row">
+    <h1 data-i18n="admin.books"></h1>
+    <a class="button" href="admin-book.html" data-i18n="admin.newBook"></a>
+  </div>
+  <form id="search" class="actions" role="search">
+    <input name="q" type="search" data-i18n-placeholder="catalog.searchHint" data-i18n-label="catalog.search">
+    <button type="submit" class="secondary" data-i18n="catalog.find"></button>
+  </form>
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th data-i18n="cart.book"></th>
+        <th data-i18n="book.category"></th>
+        <th data-i18n="admin.price"></th>
+        <th data-i18n="admin.stock"></th>
+        <th data-i18n="admin.onSale"></th>
+      </tr>
+      </thead>
+      <tbody id="books"></tbody>
+    </table>
+  </div>
+  <nav id="pager" class="pager" data-i18n-label="catalog.pages"></nav>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>

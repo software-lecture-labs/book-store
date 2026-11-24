@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="admin.catalogTitle">Yazarlar ve kategoriler</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/admin-catalog.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="site.skip">İçeriğe geç</a>
+<header id="site-header" class="site-header"></header>
+<main id="main" tabindex="-1">
+  <nav id="admin-nav" class="tabs" data-i18n-label="admin.heading"></nav>
+  <div id="messages"></div>
+  <h1 data-i18n="admin.tabCatalog"></h1>
+  <div class="two-columns">
+    <section class="panel">
+      <h2 data-i18n="admin.authors"></h2>
+      <form id="new-author" class="actions">
+        <input name="name" required maxlength="200" data-i18n-placeholder="admin.authorName" data-i18n-label="admin.authorName">
+        <button type="submit" data-i18n="admin.add"></button>
+      </form>
+      <ul id="authors" class="plain-list editable"></ul>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="admin.categories"></h2>
+      <form id="new-category">
+        <div class="form-grid">
+          <div class="field"><label for="category-name" data-i18n="admin.categoryName"></label>
+            <input id="category-name" name="name" required maxlength="100"></div>
+          <div class="field"><label for="parentId" data-i18n="admin.parentCategory"></label>
+            <select id="parentId" name="parentId"><option value="" data-i18n="admin.topLevel"></option></select></div>
+        </div>
+        <div class="actions"><button type="submit" data-i18n="admin.add"></button></div>
+      </form>
+      <ul id="categories" class="plain-list editable"></ul>
+    </section>
+  </div>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>

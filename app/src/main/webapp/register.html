@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="register.title">Kayıt</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/register.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="site.skip">İçeriğe geç</a>
+<header id="site-header" class="site-header"></header>
+<main id="main" tabindex="-1">
+  <div class="narrow">
+    <div id="messages"></div>
+    <form id="register" class="panel">
+      <h1 data-i18n="register.heading"></h1>
+      <div class="field"><label for="firstName" data-i18n="field.firstName"></label>
+        <input id="firstName" name="firstName" required maxlength="100" autocomplete="given-name"></div>
+      <div class="field"><label for="lastName" data-i18n="field.lastName"></label>
+        <input id="lastName" name="lastName" required maxlength="100" autocomplete="family-name"></div>
+      <div class="field"><label for="email" data-i18n="field.email"></label>
+        <input id="email" name="email" type="email" required maxlength="254" autocomplete="email"></div>
+      <div class="field"><label for="password" data-i18n="field.password"></label>
+        <input id="password" name="password" type="password" required minlength="8" maxlength="200"
+               autocomplete="new-password"></div>
+      <p class="hint" data-i18n="register.passwordHint"></p>
+      <div class="actions"><button type="submit" data-i18n="register.submit"></button></div>
+      <p class="hint"><span data-i18n="register.haveAccount"></span> <a href="login.html" data-i18n="nav.signIn"></a></p>
+    </form>
+  </div>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>

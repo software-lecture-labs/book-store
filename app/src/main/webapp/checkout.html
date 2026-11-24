@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="checkout.title">Sipariş</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/checkout.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="site.skip">İçeriğe geç</a>
+<header id="site-header" class="site-header"></header>
+<main id="main" tabindex="-1">
+  <div id="messages"></div>
+  <h1 data-i18n="checkout.heading"></h1>
+  <div id="notices"></div>
+  <form id="checkout" class="two-columns">
+    <div>
+      <section class="panel">
+        <h2 data-i18n="checkout.address"></h2>
+        <div id="addresses" class="choices"></div>
+        <p class="hint"><a href="account.html#new-address" data-i18n="checkout.addAddress"></a></p>
+      </section>
+      <section class="panel">
+        <h2 data-i18n="checkout.payment"></h2>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="paymentMethod" value="CREDIT_CARD" checked>
+            <span data-i18n="payment.CREDIT_CARD"></span></label>
+          <label class="choice"><input type="radio" name="paymentMethod" value="BANK_TRANSFER">
+            <span data-i18n="payment.BANK_TRANSFER"></span></label>
+          <label class="choice"><input type="radio" name="paymentMethod" value="CASH_ON_DELIVERY">
+            <span data-i18n="payment.CASH_ON_DELIVERY"></span></label>
+        </div>
+      </section>
+    </div>
+    <section class="panel">
+      <h2 data-i18n="checkout.summary"></h2>
+      <div id="summary"></div>
+      <div class="actions"><button type="submit" data-i18n="checkout.place"></button></div>
+    </section>
+  </form>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>
