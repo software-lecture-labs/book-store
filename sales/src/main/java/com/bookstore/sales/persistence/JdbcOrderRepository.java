@@ -5,6 +5,7 @@ import com.bookstore.sales.domain.OrderId;
 import com.bookstore.sales.domain.OrderLine;
 import com.bookstore.sales.domain.OrderNumber;
 import com.bookstore.sales.domain.OrderRepository;
+import com.bookstore.sales.domain.OrderSearchCriteria;
 import com.bookstore.sales.domain.OrderStatus;
 import com.bookstore.sales.domain.PaymentMethod;
 import com.bookstore.shared.jdbc.JdbcExecutor;
@@ -88,6 +89,30 @@ public class JdbcOrderRepository implements OrderRepository {
     }
 
     @Override
+    public Page<Order> search(OrderSearchCriteria criteria, PageRequest page) {
+        List<String> conditions = new ArrayList<>();
+        List<Object> params = new ArrayList<>();
+        if (criteria.status() != null) {
+            conditions.add("o.status = ?");
+            params.add(criteria.status());
+        }
+        if (criteria.fromInclusive() != null) {
+            conditions.add("o.placed_at >= ?");
+            params.add(criteria.fromInclusive());
+        }
+        if (criteria.untilExclusive() != null) {
+            conditions.add("o.placed_at < ?");
+            params.add(criteria.untilExclusive());
+        }
+        if (criteria.orderNumber() != null) {
+            conditions.add("o.order_number LIKE ? ESCAPE '!'");
+            params.add("%" + escapeLike(criteria.orderNumber()) + "%");
+        }
+        String where = conditions.isEmpty() ? "" : " WHERE " + String.join(" AND ", conditions);
+        return page(where, page, params.toArray());
+    }
+
+    @Override
     public boolean hasDeliveredBook(CustomerId customerId, BookId bookId) {
         return jdbc.exists("SELECT 1 FROM orders o JOIN order_lines l ON l.order_id = o.id "
                 + "WHERE o.user_id = ? AND o.status = ? AND l.book_id = ? LIMIT 1",
@@ -140,6 +165,10 @@ public class JdbcOrderRepository implements OrderRepository {
         List<Order> orders = load("SELECT " + COLUMNS + " FROM orders o" + where + NEWEST_FIRST + " LIMIT ? OFFSET ?",
                 pageParams);
         return new Page<>(orders, page, total);
+    }
+
+    private static String escapeLike(String value) {
+        return value.replace("!", "!!").replace("%", "!%").replace("_", "!_");
     }
 
     private List<Order> load(String sql, Object... params) {
