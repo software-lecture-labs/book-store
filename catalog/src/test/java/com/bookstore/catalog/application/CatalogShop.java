@@ -1,7 +1,6 @@
 package com.bookstore.catalog.application;
 
 import com.bookstore.catalog.domain.Author;
-import com.bookstore.catalog.domain.AuthorId;
 import com.bookstore.catalog.domain.Book;
 import com.bookstore.catalog.domain.Category;
 import com.bookstore.catalog.domain.Isbn;
@@ -26,7 +25,7 @@ public final class CatalogShop {
     public final DirectTransactions transactions = new DirectTransactions();
     public final InMemoryFileStorage files = new InMemoryFileStorage();
 
-    public final CatalogService catalog = new CatalogService(books, categories, files);
+    public final CatalogService catalog = new CatalogService(books, authors, categories, files);
     public final StockService stock = new StockService(books, transactions);
     public final RatingService ratings = new RatingService(books, transactions);
     public final CatalogAdminService admin = new CatalogAdminService(books, authors, categories, transactions, files);
@@ -49,14 +48,12 @@ public final class CatalogShop {
 
     /** Returns an author with a new id. */
     public Author author(String name) {
-        Author author = Author.create(name);
-        author.markPersisted(AuthorId.of(500 + counter.incrementAndGet()), 0);
-        return author;
+        return authors.save(Author.create(name));
     }
 
     /** Stores an author, as the administrator would. */
     public Author storedAuthor(String name) {
-        return authors.save(Author.create(name));
+        return author(name);
     }
 
     /** Stores an active novel. */

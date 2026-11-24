@@ -11,6 +11,7 @@ const form = $('#search');
 
 await startPage();
 await loadCategories();
+await loadAuthors();
 readSearchFromAddress();
 await search();
 
@@ -35,11 +36,24 @@ async function loadCategories() {
   }
 }
 
+async function loadAuthors() {
+  const select = form.elements.namedItem('author');
+  try {
+    const authors = await api.get('/authors');
+    select.append(...authors.map((author) => h('option', { value: author.id }, author.name)));
+  } catch (error) {
+    showError(error);
+  }
+}
+
 function readSearchFromAddress() {
   const parameters = new URLSearchParams(location.search);
   form.elements.namedItem('q').value = parameters.get('q') ?? '';
   form.elements.namedItem('category').value = parameters.get('category') ?? '';
+  form.elements.namedItem('author').value = parameters.get('author') ?? '';
   form.elements.namedItem('language').value = parameters.get('language') ?? '';
+  form.elements.namedItem('minPrice').value = parameters.get('minPrice') ?? '';
+  form.elements.namedItem('maxPrice').value = parameters.get('maxPrice') ?? '';
   form.elements.namedItem('inStock').checked = parameters.get('inStock') === 'true';
   const sort = `${parameters.get('sort') ?? 'TITLE'}:${parameters.get('order') ?? 'asc'}`;
   if ([...form.elements.namedItem('sort').options].some((option) => option.value === sort)) {
@@ -52,7 +66,10 @@ function currentSearch(page) {
   return {
     q: form.elements.namedItem('q').value.trim(),
     category: form.elements.namedItem('category').value,
+    author: form.elements.namedItem('author').value,
     language: form.elements.namedItem('language').value,
+    minPrice: form.elements.namedItem('minPrice').value,
+    maxPrice: form.elements.namedItem('maxPrice').value,
     inStock: form.elements.namedItem('inStock').checked,
     sort,
     order,

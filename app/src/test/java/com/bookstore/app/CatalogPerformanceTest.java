@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.bookstore.catalog.api.BookSearchQuery;
 import com.bookstore.catalog.api.BookSummary;
 import com.bookstore.catalog.application.CatalogService;
+import com.bookstore.catalog.persistence.JdbcAuthorRepository;
 import com.bookstore.catalog.persistence.InMemoryFileStorage;
 import com.bookstore.catalog.persistence.JdbcBookRepository;
 import com.bookstore.catalog.persistence.JdbcCategoryRepository;
@@ -80,8 +81,8 @@ class CatalogPerformanceTest {
         jdbc.batch("INSERT INTO book_authors (book_id, author_id, sort_order) VALUES (?, ?, ?)", links);
 
         JdbcCategoryRepository categoryRepository = new JdbcCategoryRepository(jdbc);
-        catalog = new CatalogService(new JdbcBookRepository(jdbc, categoryRepository), categoryRepository,
-                new InMemoryFileStorage());
+        catalog = new CatalogService(new JdbcBookRepository(jdbc, categoryRepository), new JdbcAuthorRepository(jdbc),
+                categoryRepository, new InMemoryFileStorage());
     }
 
     @Test

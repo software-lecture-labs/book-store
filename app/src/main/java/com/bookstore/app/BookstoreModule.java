@@ -102,11 +102,12 @@ public final class BookstoreModule {
 
         // catalog
         JdbcCategoryRepository categoryRepository = new JdbcCategoryRepository(jdbc);
+        JdbcAuthorRepository authorRepository = new JdbcAuthorRepository(jdbc);
         JdbcBookRepository bookRepository = new JdbcBookRepository(jdbc, categoryRepository);
         StockService stock = new StockService(bookRepository, transactions);
         RatingService ratings = new RatingService(bookRepository, transactions);
-        this.catalog = new CatalogService(bookRepository, categoryRepository, adapters.files());
-        this.catalogAdmin = new CatalogAdminService(bookRepository, new JdbcAuthorRepository(jdbc), categoryRepository,
+        this.catalog = new CatalogService(bookRepository, authorRepository, categoryRepository, adapters.files());
+        this.catalogAdmin = new CatalogAdminService(bookRepository, authorRepository, categoryRepository,
                 transactions, adapters.files());
 
         // customer

@@ -140,9 +140,10 @@ label.inline { display: inline-flex; align-items: center; gap: .4rem; font-weigh
 .message.success { background: var(--success-soft); color: var(--success); }
 .message.error { background: var(--danger-soft); color: var(--danger); }
 
-.search { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: .75rem; align-items: end; margin-bottom: 1.25rem; }
+.search { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; align-items: end; margin-bottom: 1.25rem; }
 .search .field { margin: 0; }
-@media (max-width: 760px) { .search { grid-template-columns: 1fr 1fr; } .search .grow { grid-column: 1 / -1; } }
+.search .grow, .search .actions { grid-column: span 2; }
+@media (max-width: 760px) { .search { grid-template-columns: 1fr 1fr; } .search .grow, .search .actions { grid-column: 1 / -1; } }
 
 .books { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; list-style: none; padding: 0; margin: 0; }
 .book-card { display: flex; flex-direction: column; gap: .35rem; height: 100%; }
