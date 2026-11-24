@@ -5,6 +5,7 @@ import com.bookstore.shared.kernel.identity.CustomerId;
 import com.bookstore.shared.kernel.paging.Page;
 import com.bookstore.shared.kernel.paging.PageRequest;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -53,6 +54,15 @@ public interface OrderRepository {
      * @return the page
      */
     Page<Order> findByStatus(OrderStatus status, PageRequest page);
+
+    /**
+     * Aggregates paid, shipped and delivered orders in a half-open time range.
+     *
+     * @param fromInclusive the first instant
+     * @param untilExclusive the first instant not included
+     * @return daily totals and the five highest- and lowest-volume books with sales
+     */
+    SalesReportData salesReport(Instant fromInclusive, Instant untilExclusive);
 
     /**
      * Tells whether a customer has received a book, which is required before reviewing it.

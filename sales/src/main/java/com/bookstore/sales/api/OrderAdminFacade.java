@@ -48,4 +48,11 @@ public interface OrderAdminFacade {
      * @throws ConflictException   if the change is not allowed from the current status (ORD-6)
      */
     OrderDetails changeStatus(String orderNumber, String target);
+
+    /**
+     * Returns the last 30 UTC days of settled sales for the administrator's dashboard.
+     *
+     * @return daily totals and book rankings
+     */
+    SalesReport salesReport();
 }

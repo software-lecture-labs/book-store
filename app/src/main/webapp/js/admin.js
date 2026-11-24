@@ -7,6 +7,7 @@ import { startPage } from './layout.js';
 
 const TABS = [
   ['admin.html', 'admin.tabOverview'],
+  ['admin-sales.html', 'admin.tabSales'],
   ['admin-books.html', 'admin.tabBooks'],
   ['admin-catalog.html', 'admin.tabCatalog'],
   ['admin-orders.html', 'admin.tabOrders'],

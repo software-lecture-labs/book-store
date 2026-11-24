@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="admin.salesTitle">Satış raporu · Yönetim</title>
+  <link rel="stylesheet" href="css/site.css">
+  <script type="module" src="js/pages/admin-sales.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main" data-i18n="site.skip">İçeriğe geç</a>
+<header id="site-header" class="site-header"></header>
+<main id="main" tabindex="-1">
+  <nav id="admin-nav" class="tabs" data-i18n-label="admin.heading"></nav>
+  <div id="messages"></div>
+  <h1 data-i18n="admin.salesHeading">Satış raporu</h1>
+  <p id="sales-period" class="hint"></p>
+  <div id="sales-figures" class="figures" aria-live="polite"></div>
+  <section class="panel">
+    <h2 data-i18n="admin.dailyRevenue">Günlük gelir</h2>
+    <div id="sales-chart"></div>
+  </section>
+  <p class="hint" data-i18n="admin.salesNote"></p>
+  <div class="two-columns">
+    <section class="panel">
+      <h2 data-i18n="admin.bestSelling">En çok satan ilk 5</h2>
+      <div id="best-selling"></div>
+    </section>
+    <section class="panel">
+      <h2 data-i18n="admin.leastSelling">En az satan ilk 5</h2>
+      <div id="least-selling"></div>
+    </section>
+  </div>
+</main>
+<footer class="site-footer" data-i18n="site.footer"></footer>
+</body>
+</html>

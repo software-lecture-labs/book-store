@@ -38,7 +38,7 @@ class SalesResourcesTest {
             case "admin" -> Optional.of(new Caller(CustomerId.of(999), Caller.ADMIN));
             default -> Optional.empty();
         }, new CartResource(shop.cart, () -> visitorCart), new OrderResource(shop.checkout, shop.myOrders),
-                new OrderAdminResource(shop.orderAdmin));
+                new OrderAdminResource(shop.orderAdmin), new AdminSalesResource(shop.orderAdmin));
         anonymous = server.client();
         ayse = anonymous.as("ayse", "pw");
         mehmet = anonymous.as("mehmet", "pw");
@@ -149,11 +149,18 @@ class SalesResourcesTest {
 
         assertThat(anonymous.get("/api/v1/admin/orders").status()).isEqualTo(401);
         assertThat(ayse.get("/api/v1/admin/orders").status()).isEqualTo(403);
+        assertThat(anonymous.get("/api/v1/admin/sales").status()).isEqualTo(401);
+        assertThat(ayse.get("/api/v1/admin/sales").status()).isEqualTo(403);
         assertThat(ayse.put(statusPath, "{\"status\": \"SHIPPED\"}").status()).isEqualTo(403);
 
         assertThat(admin.put(statusPath, "{\"status\": \"SHIPPED\"}").json().get("status").asText())
                 .isEqualTo("SHIPPED");
         assertThat(admin.get("/api/v1/admin/orders?status=SHIPPED").json().get("totalElements").asInt()).isEqualTo(1);
+        JsonNode report = admin.get("/api/v1/admin/sales").json();
+        assertThat(report.get("orderCount").asLong()).isEqualTo(1);
+        assertThat(report.get("unitsSold").asLong()).isEqualTo(1);
+        assertThat(report.get("daily").size()).isEqualTo(30);
+        assertThat(report.get("bestSelling").get(0).get("title").asText()).isEqualTo("Dune");
         assertThat(admin.put(statusPath, "{\"status\": \"CREATED\"}").status()).isEqualTo(409);
         assertThat(admin.put(statusPath, "{\"status\": \"LOST\"}").status()).isEqualTo(422);
     }

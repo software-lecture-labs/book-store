@@ -7,8 +7,10 @@ import com.bookstore.sales.domain.OrderNumber;
 import com.bookstore.sales.domain.OrderRepository;
 import com.bookstore.sales.domain.OrderStatus;
 import com.bookstore.sales.domain.PaymentMethod;
+import com.bookstore.sales.domain.SalesReportData;
 import com.bookstore.shared.jdbc.JdbcExecutor;
 import com.bookstore.shared.jdbc.RecordRowMapper;
+import com.bookstore.shared.jdbc.RowMapper;
 import com.bookstore.shared.kernel.address.Address;
 import com.bookstore.shared.kernel.identity.BookId;
 import com.bookstore.shared.kernel.identity.CustomerId;
@@ -37,10 +39,17 @@ public class JdbcOrderRepository implements OrderRepository {
     private static final String COLUMNS = "o.id, o.version, o.order_number, o.user_id, o.status, o.payment_method, "
             + "o.shipping_cost, o.placed_at, o.status_changed_at, o.ship_recipient, o.ship_phone, o.ship_line, "
             + "o.ship_district, o.ship_city, o.ship_postal_code";
+    private static final String UTC_SALE_DATE = "CAST(o.placed_at AT TIME ZONE 'UTC' AS DATE)";
     private static final String NEWEST_FIRST = " ORDER BY o.placed_at DESC, o.id DESC";
 
     private static final RecordRowMapper<OrderRow> ORDERS = RecordRowMapper.of(OrderRow.class);
     private static final RecordRowMapper<LineRow> LINES = RecordRowMapper.of(LineRow.class);
+    private static final RowMapper<SalesReportData.DailySales> DAILY_SALES = row ->
+            new SalesReportData.DailySales(row.getDate("sale_date").toLocalDate(),
+                    Money.of(row.getBigDecimal("revenue")), row.getLong("order_count"), row.getLong("units_sold"));
+    private static final RowMapper<SalesReportData.BookSales> BOOK_SALES = row ->
+            new SalesReportData.BookSales(BookId.of(row.getLong("book_id")), row.getString("book_title"),
+                    row.getLong("units_sold"), Money.of(row.getBigDecimal("revenue")));
 
     private final JdbcExecutor jdbc;
 
@@ -85,6 +94,28 @@ public class JdbcOrderRepository implements OrderRepository {
     @Override
     public Page<Order> findByStatus(OrderStatus status, PageRequest page) {
         return page(" WHERE o.status = ?", page, status);
+    }
+
+    @Override
+    public SalesReportData salesReport(Instant fromInclusive, Instant untilExclusive) {
+        Object[] range = new Object[] {OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.DELIVERED,
+                fromInclusive, untilExclusive};
+        String dailySql = """
+                SELECT %s AS sale_date,
+                       COUNT(*) AS order_count,
+                       SUM(o.shipping_cost + totals.subtotal) AS revenue,
+                       SUM(totals.units_sold) AS units_sold
+                FROM orders o
+                JOIN (SELECT order_id, SUM(unit_price * quantity) AS subtotal, SUM(quantity) AS units_sold
+                      FROM order_lines GROUP BY order_id) totals ON totals.order_id = o.id
+                WHERE o.status IN (?, ?, ?) AND o.placed_at >= ? AND o.placed_at < ?
+                GROUP BY %s
+                ORDER BY sale_date
+                """.formatted(UTC_SALE_DATE, UTC_SALE_DATE);
+        List<SalesReportData.DailySales> daily = jdbc.query(dailySql, DAILY_SALES, range);
+        List<SalesReportData.BookSales> bestSelling = bookSales(fromInclusive, untilExclusive, true);
+        List<SalesReportData.BookSales> leastSelling = bookSales(fromInclusive, untilExclusive, false);
+        return new SalesReportData(daily, bestSelling, leastSelling);
     }
 
     @Override
@@ -140,6 +171,23 @@ public class JdbcOrderRepository implements OrderRepository {
         List<Order> orders = load("SELECT " + COLUMNS + " FROM orders o" + where + NEWEST_FIRST + " LIMIT ? OFFSET ?",
                 pageParams);
         return new Page<>(orders, page, total);
+    }
+
+    private List<SalesReportData.BookSales> bookSales(Instant fromInclusive, Instant untilExclusive,
+                                                      boolean bestSelling) {
+        String direction = bestSelling ? "DESC" : "ASC";
+        String sql = """
+                SELECT l.book_id, MAX(l.book_title) AS book_title,
+                       SUM(l.quantity) AS units_sold, SUM(l.unit_price * l.quantity) AS revenue
+                FROM order_lines l
+                JOIN orders o ON o.id = l.order_id
+                WHERE o.status IN (?, ?, ?) AND o.placed_at >= ? AND o.placed_at < ?
+                GROUP BY l.book_id
+                ORDER BY units_sold %s, revenue %s, book_title, l.book_id
+                LIMIT ?
+                """.formatted(direction, direction);
+        return jdbc.query(sql, BOOK_SALES, OrderStatus.PAID, OrderStatus.SHIPPED, OrderStatus.DELIVERED,
+                fromInclusive, untilExclusive, SalesReportData.RANKING_SIZE);
     }
 
     private List<Order> load(String sql, Object... params) {
