@@ -13,6 +13,34 @@
 <main id="main" tabindex="-1">
   <nav id="admin-nav" class="tabs" data-i18n-label="admin.heading"></nav>
   <div id="messages"></div>
+  <form id="filters" class="search panel" role="search">
+    <div class="field">
+      <label for="status" data-i18n="orders.status"></label>
+      <select id="status" name="status">
+        <option value="" data-i18n="admin.allStatuses"></option>
+        <option value="CREATED" data-i18n="status.CREATED"></option>
+        <option value="PAID" data-i18n="status.PAID"></option>
+        <option value="SHIPPED" data-i18n="status.SHIPPED"></option>
+        <option value="DELIVERED" data-i18n="status.DELIVERED"></option>
+        <option value="CANCELLED" data-i18n="status.CANCELLED"></option>
+      </select>
+    </div>
+    <div class="field grow">
+      <label for="orderNumber" data-i18n="admin.orderNumberSearch"></label>
+      <input id="orderNumber" name="orderNumber" type="search" data-i18n-placeholder="admin.orderNumberHint">
+    </div>
+    <div class="field">
+      <label for="fromDate" data-i18n="admin.fromDate"></label>
+      <input id="fromDate" name="fromDate" type="date">
+    </div>
+    <div class="field">
+      <label for="toDate" data-i18n="admin.toDate"></label>
+      <input id="toDate" name="toDate" type="date">
+    </div>
+    <div class="actions">
+      <button type="submit" data-i18n="admin.filterOrders"></button>
+    </div>
+  </form>
   <div id="orders" aria-live="polite"></div>
 </main>
 <footer class="site-footer" data-i18n="site.footer"></footer>

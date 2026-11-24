@@ -2,12 +2,17 @@ package com.bookstore.sales.rest;
 
 import com.bookstore.sales.api.OrderAdminFacade;
 import com.bookstore.sales.api.OrderDetails;
+import com.bookstore.sales.api.OrderSearchQuery;
 import com.bookstore.sales.api.OrderSummary;
 import com.bookstore.sales.rest.SalesRequests.StatusChangeRequest;
 import com.bookstore.shared.kernel.paging.PageRequest;
 import com.bookstore.shared.web.Callers;
 import com.bookstore.shared.web.PageResponse;
 import com.bookstore.shared.web.Params;
+import com.bookstore.shared.web.WebException;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,7 +35,8 @@ import jakarta.ws.rs.core.SecurityContext;
  *
  * <table>
  *   <caption>Endpoints</caption>
- *   <tr><td>{@code GET /api/v1/admin/orders}</td><td>all orders, or those in {@code ?status=}</td></tr>
+ *   <tr><td>{@code GET /api/v1/admin/orders}</td><td>filter by {@code status}, {@code orderNumber},
+ *       {@code from} and {@code to}</td></tr>
  *   <tr><td>{@code GET /api/v1/admin/orders/{number}}</td><td>any order</td></tr>
  *   <tr><td>{@code PUT /api/v1/admin/orders/{number}/status}</td><td>move it to another status</td></tr>
  * </table>
@@ -63,17 +69,23 @@ public class OrderAdminResource {
      *
      * @param security the request's security
      * @param status   only orders in this status, for example {@code SHIPPED}
+     * @param number   a fragment of the order number
+     * @param from     the first order date, inclusive, in {@code YYYY-MM-DD}
+     * @param to       the last order date, inclusive, in {@code YYYY-MM-DD}
      * @param page     the page
      * @param size     the size
      * @return the orders, newest first
      */
     @GET
     public PageResponse<OrderSummary> list(@Context SecurityContext security, @QueryParam("status") String status,
+                                           @QueryParam("orderNumber") String number, @QueryParam("from") String from,
+                                           @QueryParam("to") String to,
                                            @QueryParam("page") String page, @QueryParam("size") String size) {
         Callers.administrator(security);
         PageRequest request = PageResponse.pageOf(page, size);
-        String wanted = Params.optional(status);
-        return PageResponse.of(wanted == null ? orders.orders(request) : orders.ordersIn(wanted, request));
+        OrderSearchQuery query = new OrderSearchQuery(Params.optional(status), Params.optional(number),
+                date("from", from), date("to", to));
+        return PageResponse.of(orders.search(query, request));
     }
 
     /** @param security the request's security @param number the order number @return the order */
@@ -91,5 +103,17 @@ public class OrderAdminResource {
                                      @Valid @NotNull StatusChangeRequest change) {
         Callers.administrator(security);
         return orders.changeStatus(number, change.status());
+    }
+
+    private static LocalDate date(String name, String value) {
+        String optional = Params.optional(value);
+        if (optional == null) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(optional);
+        } catch (DateTimeParseException e) {
+            throw WebException.badRequest("request.bad-parameter", name + " must use YYYY-MM-DD format");
+        }
     }
 }

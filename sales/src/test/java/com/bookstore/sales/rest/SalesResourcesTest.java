@@ -158,6 +158,28 @@ class SalesResourcesTest {
         assertThat(admin.put(statusPath, "{\"status\": \"LOST\"}").status()).isEqualTo(422);
     }
 
+    @Test
+    void administratorsFilterOrdersByNumberAndInclusiveDateRange() {
+        ayse.post("/api/v1/cart/items", "{\"bookId\": " + dune.id().value() + ", \"quantity\": 1}");
+        HttpTestClient.Reply placed = ayse.post("/api/v1/orders", placeOrder(shop.defaultAddressId(ayseId)));
+        String number = placed.json().get("orderNumber").asText();
+        String date = placed.json().get("placedAt").asText().substring(0, 10);
+        mehmet.post("/api/v1/cart/items", "{\"bookId\": " + dune.id().value() + ", \"quantity\": 1}");
+        mehmet.post("/api/v1/orders", placeOrder(shop.defaultAddressId(mehmetId)));
+
+        JsonNode filtered = admin.get("/api/v1/admin/orders?status=PAID&orderNumber="
+                + number.substring(number.length() - 2) + "&from=" + date + "&to=" + date).json();
+
+        assertThat(filtered.get("totalElements").asInt()).isEqualTo(1);
+        assertThat(filtered.get("content").get(0).get("orderNumber").asText()).isEqualTo(number);
+    }
+
+    @Test
+    void administratorsCannotPassMalformedOrInvertedDates() {
+        assertThat(admin.get("/api/v1/admin/orders?from=not-a-date").status()).isEqualTo(400);
+        assertThat(admin.get("/api/v1/admin/orders?from=2026-11-25&to=2026-11-24").status()).isEqualTo(422);
+    }
+
     private static String placeOrder(long addressId) {
         return "{\"addressId\": " + addressId + ", \"paymentMethod\": \"CREDIT_CARD\"}";
     }

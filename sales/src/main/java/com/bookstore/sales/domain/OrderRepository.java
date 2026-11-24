@@ -55,6 +55,15 @@ public interface OrderRepository {
     Page<Order> findByStatus(OrderStatus status, PageRequest page);
 
     /**
+     * Returns one page matching all supplied filters, newest first.
+     *
+     * @param criteria the filters; {@code null} values mean no filter
+     * @param page     which page to return
+     * @return the matching orders
+     */
+    Page<Order> search(OrderSearchCriteria criteria, PageRequest page);
+
+    /**
      * Tells whether a customer has received a book, which is required before reviewing it.
      *
      * @param customerId the customer's id

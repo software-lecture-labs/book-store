@@ -30,6 +30,17 @@ public interface OrderAdminFacade {
     Page<OrderSummary> ordersIn(String status, PageRequest page);
 
     /**
+     * Searches orders by optional status, number fragment and inclusive calendar-date range.
+     * Dates are interpreted in UTC.
+     *
+     * @param query the filters
+     * @param page  which page to return
+     * @return one page of matching orders, newest first
+     * @throws ValidationException if a filter or date range is invalid
+     */
+    Page<OrderSummary> search(OrderSearchQuery query, PageRequest page);
+
+    /**
      * Returns any order.
      *
      * @param orderNumber the order number

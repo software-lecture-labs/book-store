@@ -14,6 +14,7 @@ import com.bookstore.sales.domain.OrderNumber;
 import com.bookstore.sales.domain.OrderPlaced;
 import com.bookstore.sales.domain.OrderRequest;
 import com.bookstore.sales.domain.OrderRequestLog;
+import com.bookstore.sales.domain.OrderSearchCriteria;
 import com.bookstore.sales.domain.OrderStatus;
 import com.bookstore.sales.domain.OrderStatusChanged;
 import com.bookstore.sales.domain.PaymentMethod;
@@ -167,6 +168,22 @@ abstract class SalesRepositoryContract {
             assertThat(db.orders.findByStatus(OrderStatus.PAID, PageRequest.first()).content())
                     .extracting(Order::number).containsExactly(other.number());
             assertThat(db.orders.findByStatus(OrderStatus.DELIVERED, PageRequest.first()).isEmpty()).isTrue();
+        }
+
+        @Test
+        void searchesOrdersByStatusDateRangeAndNumberFragment() {
+            place(ayse, Clock.offset(TestClock.CLOCK, Duration.ofDays(-1)), Map.of(dune, 1));
+            Order match = place(mehmet, TestClock.CLOCK, Map.of(madonna, 1));
+            place(ayse, Clock.offset(TestClock.CLOCK, Duration.ofDays(1)), Map.of(dune, 1));
+            match.markPaid(TestClock.CLOCK);
+            db.orders.save(match);
+
+            OrderSearchCriteria criteria = new OrderSearchCriteria(OrderStatus.PAID, TestClock.NOW,
+                    TestClock.NOW.plus(Duration.ofDays(1)),
+                    match.number().value().substring(match.number().value().length() - 2));
+
+            assertThat(db.orders.search(criteria, PageRequest.first()).content())
+                    .extracting(Order::number).containsExactly(match.number());
         }
 
         @Test

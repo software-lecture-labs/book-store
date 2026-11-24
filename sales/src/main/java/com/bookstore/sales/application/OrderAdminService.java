@@ -3,11 +3,13 @@ package com.bookstore.sales.application;
 import com.bookstore.catalog.api.StockFacade;
 import com.bookstore.sales.api.OrderAdminFacade;
 import com.bookstore.sales.api.OrderDetails;
+import com.bookstore.sales.api.OrderSearchQuery;
 import com.bookstore.sales.api.OrderSummary;
 import com.bookstore.sales.domain.Order;
 import com.bookstore.sales.domain.OrderEventOutbox;
 import com.bookstore.sales.domain.OrderNumber;
 import com.bookstore.sales.domain.OrderRepository;
+import com.bookstore.sales.domain.OrderSearchCriteria;
 import com.bookstore.sales.domain.OrderStatus;
 import com.bookstore.shared.kernel.error.ConflictException;
 import com.bookstore.shared.kernel.error.NotFoundException;
@@ -16,6 +18,7 @@ import com.bookstore.shared.kernel.paging.PageRequest;
 import com.bookstore.shared.kernel.transaction.TransactionRunner;
 
 import java.time.Clock;
+import java.time.ZoneOffset;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -81,6 +84,16 @@ public class OrderAdminService implements OrderAdminFacade {
     @Override
     public Page<OrderSummary> ordersIn(String status, PageRequest page) {
         return orders.findByStatus(SalesMapper.statusOf(status), page).map(SalesMapper::summaryOf);
+    }
+
+    @Override
+    public Page<OrderSummary> search(OrderSearchQuery query, PageRequest page) {
+        OrderStatus status = query.status() == null ? null : SalesMapper.statusOf(query.status());
+        OrderSearchCriteria criteria = new OrderSearchCriteria(status,
+                query.from() == null ? null : query.from().atStartOfDay(ZoneOffset.UTC).toInstant(),
+                query.to() == null ? null : query.to().plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant(),
+                query.orderNumber());
+        return orders.search(criteria, page).map(SalesMapper::summaryOf);
     }
 
     /**

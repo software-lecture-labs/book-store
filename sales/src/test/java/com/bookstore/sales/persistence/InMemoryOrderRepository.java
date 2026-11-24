@@ -4,6 +4,7 @@ import com.bookstore.sales.domain.Order;
 import com.bookstore.sales.domain.OrderId;
 import com.bookstore.sales.domain.OrderNumber;
 import com.bookstore.sales.domain.OrderRepository;
+import com.bookstore.sales.domain.OrderSearchCriteria;
 import com.bookstore.sales.domain.OrderStatus;
 import com.bookstore.shared.kernel.identity.BookId;
 import com.bookstore.shared.kernel.identity.CustomerId;
@@ -52,6 +53,14 @@ public class InMemoryOrderRepository extends InMemoryStore<OrderId, Order> imple
     @Override
     public Page<Order> findByStatus(OrderStatus status, PageRequest page) {
         return newestFirst(order -> order.status() == status, page);
+    }
+
+    @Override
+    public Page<Order> search(OrderSearchCriteria criteria, PageRequest page) {
+        return newestFirst(order -> (criteria.status() == null || order.status() == criteria.status())
+                && (criteria.fromInclusive() == null || !order.placedAt().isBefore(criteria.fromInclusive()))
+                && (criteria.untilExclusive() == null || order.placedAt().isBefore(criteria.untilExclusive()))
+                && (criteria.orderNumber() == null || order.number().value().contains(criteria.orderNumber())), page);
     }
 
     @Override

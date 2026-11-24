@@ -1,4 +1,4 @@
-// Every order (ADM-5): filtered by status; one order with ?number= and the statuses it may move to.
+// Every order (ADM-5): filtered by status, number and date; one order with ?number= and its next statuses.
 
 import { api, query } from '../api.js';
 import { $, fill, h, param } from '../dom.js';
@@ -10,30 +10,47 @@ const STATUSES = ['CREATED', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
 
 await startAdminPage();
 
+const form = $('#filters');
 const number = param('number');
 if (number) {
+  form.hidden = true;
   await showOrder(number);
 } else {
-  await showList(param('status') ?? '', 0);
+  const parameters = new URLSearchParams(location.search);
+  form.elements.namedItem('status').value = parameters.get('status') ?? '';
+  form.elements.namedItem('orderNumber').value = parameters.get('orderNumber') ?? '';
+  form.elements.namedItem('fromDate').value = parameters.get('from') ?? '';
+  form.elements.namedItem('toDate').value = parameters.get('to') ?? '';
+  await showList(currentFilters(), Number(parameters.get('page') ?? 0));
 }
+
+form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  await showList(currentFilters(), 0);
+});
 
 function status(code) {
   return h('span', { class: `status ${code}` }, t(`status.${code}`));
 }
 
-async function showList(filter, page) {
-  history.replaceState(null, '', `admin-orders.html${query({ status: filter })}`);
+function currentFilters() {
+  return {
+    status: form.elements.namedItem('status').value,
+    orderNumber: form.elements.namedItem('orderNumber').value.trim(),
+    from: form.elements.namedItem('fromDate').value,
+    to: form.elements.namedItem('toDate').value,
+  };
+}
+
+async function showList(filters, page) {
+  history.replaceState(null, '', `admin-orders.html${query({ ...filters, page: page || null })}`);
   const box = $('#orders');
   try {
-    const result = await api.get(`/admin/orders${query({ status: filter, page, size: 20 })}`);
-    const select = h('select', { id: 'status-filter', onchange: (event) => showList(event.target.value, 0) },
-      h('option', { value: '' }, t('admin.allStatuses')),
-      STATUSES.map((code) => h('option', { value: code, selected: code === filter }, t(`status.${code}`))));
+    const result = await api.get(`/admin/orders${query({ ...filters, page, size: 20 })}`);
     const pages = h('nav', { class: 'pager' });
-    pager(pages, result, (next) => showList(filter, next));
+    pager(pages, result, (next) => showList(filters, next));
     fill(box,
-      h('div', { class: 'heading-row' }, h('h1', {}, t('admin.orders')),
-        h('label', { class: 'inline' }, t('orders.status'), select)),
+      h('h1', {}, t('admin.orders')),
       result.totalElements === 0 ? h('p', { class: 'empty' }, t('admin.noOrders')) : h('div', { class: 'panel table-wrap' },
         h('table', {},
           h('thead', {}, h('tr', {}, h('th', {}, t('orders.number')), h('th', {}, t('orders.date')),
