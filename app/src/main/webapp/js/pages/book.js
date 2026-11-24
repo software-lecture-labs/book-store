@@ -3,10 +3,12 @@
 import { api, ApiError } from '../api.js';
 import { $, fill, formValues, h, param } from '../dom.js';
 import { formatDateTime, formatMoney, t } from '../i18n.js';
+import { favoriteButton, loadFavoriteIds } from '../favorites.js';
 import { busy, refreshCartBadge, showError, showMessage, startPage } from '../layout.js';
 
 const bookId = Number(param('id'));
 const caller = await startPage();
+const favoriteIds = caller?.role === 'CUSTOMER' ? await loadFavoriteIds() : new Set();
 
 if (!Number.isInteger(bookId) || bookId <= 0) {
   showMessage(t('book.notFound'), 'error');
@@ -60,6 +62,7 @@ async function showBook() {
     h('p', { class: 'price' }, formatMoney(book.price)),
     h('p', { class: book.inStock ? 'stock' : 'stock out' },
       book.inStock ? t('book.stockLeft', { count: book.stock }) : t('book.outOfStock')),
+    caller?.role === 'CUSTOMER' ? favoriteButton(bookId, book.title, favoriteIds) : null,
     addForm,
     h('dl', { class: 'facts' }, facts.map(([key, value]) => [h('dt', {}, t(key)), h('dd', {}, value)])),
     book.description ? h('p', {}, book.description) : null);

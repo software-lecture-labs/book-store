@@ -3,6 +3,7 @@ package com.bookstore.customer.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bookstore.customer.application.CustomerShop;
+import com.bookstore.customer.rest.FavoriteResource;
 import com.bookstore.shared.web.HttpTestClient;
 import com.bookstore.shared.web.RestTestServer;
 
@@ -23,7 +24,8 @@ class AccountResourceTest {
 
     private final CustomerShop shop = new CustomerShop();
     private final RestTestServer server = RestTestServer.start(new AccountAuthenticator(shop.accounts),
-            new AccountResource(shop.accounts), new RegistrationResource(shop.accounts));
+            new AccountResource(shop.accounts), new RegistrationResource(shop.accounts),
+            new FavoriteResource(shop.favorites));
     private final HttpTestClient anonymous = server.client();
     private final HttpTestClient ayse = anonymous.as("ayse@example.com", CustomerShop.PASSWORD);
 
@@ -94,5 +96,17 @@ class AccountResourceTest {
         assertThat(changed.status()).isEqualTo(204);
         assertThat(ayse.get("/api/v1/me").status()).isEqualTo(401);
         assertThat(anonymous.as("ayse@example.com", "yeni-parola-2026").get("/api/v1/me").status()).isEqualTo(200);
+    }
+
+    @Test
+    void favoritesAreCustomerSpecificAndCanBeAddedRemovedAndListed() {
+        anonymous.post("/api/v1/customers", REGISTRATION.formatted(CustomerShop.PASSWORD));
+
+        assertThat(anonymous.get("/api/v1/me/favorites").status()).isEqualTo(401);
+        assertThat(ayse.put("/api/v1/me/favorites/3", "").status()).isEqualTo(204);
+        assertThat(ayse.put("/api/v1/me/favorites/3", "").status()).isEqualTo(409);
+        assertThat(ayse.get("/api/v1/me/favorites").json().get("content").get(0).asLong()).isEqualTo(3);
+        assertThat(ayse.delete("/api/v1/me/favorites/3").status()).isEqualTo(204);
+        assertThat(ayse.get("/api/v1/me/favorites").json().get("totalElements").asLong()).isZero();
     }
 }
