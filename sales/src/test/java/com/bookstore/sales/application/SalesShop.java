@@ -56,7 +56,7 @@ public final class SalesShop {
     public final CartService cart = new CartService(catalog, carts, shipping, transactions);
     public final CheckoutService checkout = new CheckoutService(customers, carts, catalog, orders, orderNumbers,
             requests, payments, shipping, transactions, outbox, relay, CLOCK);
-    public final OrderService myOrders = new OrderService(orders);
+    public final OrderService myOrders = new OrderService(orders, catalog, transactions, outbox, relay, CLOCK);
     public final OrderAdminService orderAdmin = new OrderAdminService(orders, catalog, transactions, outbox, relay, CLOCK);
     public final PurchaseHistoryService purchases = new PurchaseHistoryService(orders);
 

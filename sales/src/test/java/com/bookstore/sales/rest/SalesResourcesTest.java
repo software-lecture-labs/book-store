@@ -158,6 +158,28 @@ class SalesResourcesTest {
         assertThat(admin.put(statusPath, "{\"status\": \"LOST\"}").status()).isEqualTo(422);
     }
 
+    @Test
+    void customerCancelsOwnOrderButNotAnotherCustomersOrderOrAShippedOrder() {
+        ayse.post("/api/v1/cart/items", "{\"bookId\": " + dune.id().value() + ", \"quantity\": 1}");
+        String ayseNumber = ayse.post("/api/v1/orders", placeOrder(shop.defaultAddressId(ayseId))).json()
+                .get("orderNumber").asText();
+
+        assertThat(ayse.post("/api/v1/orders/" + ayseNumber + "/cancel", "").status()).isEqualTo(200);
+        assertThat(ayse.get("/api/v1/orders/" + ayseNumber).json().get("status").asText())
+                .isEqualTo("CANCELLED");
+
+        mehmet.post("/api/v1/cart/items", "{\"bookId\": " + dune.id().value() + ", \"quantity\": 1}");
+        String mehmetNumber = mehmet.post("/api/v1/orders", placeOrder(shop.defaultAddressId(mehmetId))).json()
+                .get("orderNumber").asText();
+        assertThat(ayse.post("/api/v1/orders/" + mehmetNumber + "/cancel", "").status()).isEqualTo(403);
+
+        mehmet.post("/api/v1/cart/items", "{\"bookId\": " + dune.id().value() + ", \"quantity\": 1}");
+        String shippedNumber = mehmet.post("/api/v1/orders", placeOrder(shop.defaultAddressId(mehmetId))).json()
+                .get("orderNumber").asText();
+        admin.put("/api/v1/admin/orders/" + shippedNumber + "/status", "{\"status\": \"SHIPPED\"}");
+        assertThat(mehmet.post("/api/v1/orders/" + shippedNumber + "/cancel", "").status()).isEqualTo(409);
+    }
+
     private static String placeOrder(long addressId) {
         return "{\"addressId\": " + addressId + ", \"paymentMethod\": \"CREDIT_CARD\"}";
     }

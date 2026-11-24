@@ -83,6 +83,35 @@ class OrderManagementTest {
     }
 
     @Test
+    void customerCanCancelOwnOrderAndRestoreStock() {
+        String number = shop.buy(ayse, dune, 4).orderNumber();
+
+        OrderDetails cancelled = shop.myOrders.cancel(ayse, number);
+
+        assertThat(cancelled.status()).isEqualTo("CANCELLED");
+        assertThat(cancelled.nextStatuses()).isEmpty();
+        assertThat(shop.catalog.stockOf(dune.id())).isEqualTo(10);
+    }
+
+    @Test
+    void customerCannotCancelAnotherCustomersOrder() {
+        String number = shop.buy(mehmet, dune, 1).orderNumber();
+
+        assertThatThrownBy(() -> shop.myOrders.cancel(ayse, number))
+                .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void customerCannotCancelShippedOrder() {
+        String number = shop.buy(ayse, dune, 1).orderNumber();
+        shop.orderAdmin.changeStatus(number, "SHIPPED");
+
+        assertThatThrownBy(() -> shop.myOrders.cancel(ayse, number))
+                .isInstanceOfSatisfying(ConflictException.class,
+                        e -> assertThat(e.code()).isEqualTo(OrderStatus.ILLEGAL_TRANSITION));
+    }
+
+    @Test
     void administratorFiltersOrdersByStatus() {
         String shipped = shop.buy(ayse, dune, 1).orderNumber();
         shop.buy(mehmet, dune, 1);

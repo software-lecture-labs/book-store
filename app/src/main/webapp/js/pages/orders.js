@@ -3,7 +3,7 @@
 import { api } from '../api.js';
 import { $, fill, h, param } from '../dom.js';
 import { formatDateTime, formatMoney, t } from '../i18n.js';
-import { showError, showMessage, startPage } from '../layout.js';
+import { busy, showError, showMessage, startPage } from '../layout.js';
 
 await startPage({ signInRequired: true });
 
@@ -61,6 +61,19 @@ async function showOrder(orderNumber) {
   try {
     const order = await api.get(`/orders/${encodeURIComponent(orderNumber)}`);
     const address = order.shippingAddress;
+    const cancelButton = ['CREATED', 'PAID'].includes(order.status)
+      ? h('button', { type: 'button', class: 'danger' }, t('orders.cancel'))
+      : null;
+    if (cancelButton) {
+      cancelButton.addEventListener('click', () => busy(cancelButton, async () => {
+        if (!confirm(t('orders.confirmCancel', { number: order.orderNumber }))) {
+          return;
+        }
+        const cancelled = await api.post(`/orders/${encodeURIComponent(order.orderNumber)}/cancel`, {});
+        showMessage(t('orders.cancelled'), 'success');
+        await showOrder(cancelled.orderNumber);
+      }));
+    }
     fill(box,
       h('p', {}, h('a', { href: 'orders.html' }, t('orders.back'))),
       h('h1', {}, t('orders.order', { number: order.orderNumber })),
@@ -71,6 +84,7 @@ async function showOrder(orderNumber) {
             h('dt', {}, t('orders.date')), h('dd', {}, formatDateTime(order.placedAt)),
             h('dt', {}, t('orders.updated')), h('dd', {}, formatDateTime(order.statusChangedAt)),
             h('dt', {}, t('checkout.payment')), h('dd', {}, t(`payment.${order.paymentMethod}`))),
+          cancelButton ? h('div', { class: 'actions' }, cancelButton) : null,
           h('h2', {}, t('checkout.address')),
           h('address', {}, address.recipient, h('br'), address.line, h('br'),
             `${address.district} / ${address.city} ${address.postalCode}`, h('br'), address.phone)),
