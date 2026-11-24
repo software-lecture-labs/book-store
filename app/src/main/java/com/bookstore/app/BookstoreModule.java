@@ -16,8 +16,11 @@ import com.bookstore.customer.api.CustomerAdminFacade;
 import com.bookstore.customer.application.AccountService;
 import com.bookstore.customer.application.CustomerAdminService;
 import com.bookstore.customer.application.CustomerDirectoryService;
+import com.bookstore.customer.application.FavoriteService;
 import com.bookstore.customer.domain.PasswordHasher;
+import com.bookstore.customer.api.FavoriteFacade;
 import com.bookstore.customer.persistence.JdbcCustomerRepository;
+import com.bookstore.customer.persistence.JdbcFavoriteRepository;
 import com.bookstore.review.api.ReviewAdminFacade;
 import com.bookstore.review.api.ReviewFacade;
 import com.bookstore.review.application.ReviewAdminService;
@@ -76,6 +79,7 @@ public final class BookstoreModule {
     private final CatalogFacade catalog;
     private final CatalogAdminFacade catalogAdmin;
     private final AccountFacade accounts;
+    private final FavoriteFacade favorites;
     private final CartFacade cart;
     private final CheckoutFacade checkout;
     private final OrderFacade orders;
@@ -115,6 +119,8 @@ public final class BookstoreModule {
         this.customerAdmin = new CustomerAdminService(customerRepository, transactions);
         this.accounts = new AccountService(customerRepository, adapters.passwordHasher(), transactions,
                 adapters.clock());
+        this.favorites = new FavoriteService(customerRepository,
+                new JdbcFavoriteRepository(jdbc, adapters.clock()), transactions);
 
         // sales
         JdbcCartRepository cartRepository = new JdbcCartRepository(jdbc);
@@ -158,6 +164,11 @@ public final class BookstoreModule {
     /** @return registration, sign-in data, profile and address book */
     public AccountFacade accounts() {
         return accounts;
+    }
+
+    /** @return the signed-in customer's favorite-book use cases */
+    public FavoriteFacade favorites() {
+        return favorites;
     }
 
     /** @return visitors' and customers' carts */
